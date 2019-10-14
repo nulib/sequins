@@ -233,8 +233,6 @@ defmodule SQNS.Pipeline.Action do
     |> Enum.each(fn %Message{data: {_, data, attrs}} ->
       topic_arn = queue_name |> SQNS.Topics.get_topic_arn()
 
-      Logger.debug("Sending #{inspect(data)} to #{topic_arn} [#{inspect(attrs)}]")
-
       data
       |> ExAws.SNS.publish(topic_arn: topic_arn, message_attributes: attrs)
       |> ExAws.request!()
