@@ -54,7 +54,7 @@ defmodule Sqns.MixProject do
       {:inflex, "~> 2.0.0"},
       {:jason, "~> 1.0"},
       {:mox, "~> 0.5", only: :test},
-      {:poison, "~> 3.0"},
+      {:poison, ">= 3.0.0"},
       {:sweet_xml, "~> 0.6"}
     ]
   end
