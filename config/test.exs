@@ -18,7 +18,7 @@ config :ex_aws, :sns,
   scheme: "http://",
   region: "us-east-1"
 
-config :sqns, prefix: 'sqns-test'
+config :sqns, prefix: "sqns-test"
 
 # Print only warnings and errors during test
 config :logger, level: :info

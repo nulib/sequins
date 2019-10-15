@@ -241,17 +241,6 @@ defmodule SQNS.Pipeline.Action do
     messages
   end
 
-  @impl true
-  def handle_batch(batcher, messages, _, context) do
-    Logger.warn(
-      "Unknown Batcher: " <>
-        "#{inspect(batcher)} called for #{length(messages)} messages " <>
-        "with context #{inspect(context)}"
-    )
-
-    messages
-  end
-
   defp validate_config(opts) do
     result =
       case opts |> Broadway.Options.validate(configuration_spec()) do
@@ -265,7 +254,7 @@ defmodule SQNS.Pipeline.Action do
 
     case result do
       %{queue_name: queue_name} when not is_binary(queue_name) ->
-        {:error, "expected :queue_name to be a binary, got: #{queue_name}"}
+        raise %ArgumentError{message: "expected :queue_name to be a binary, got: #{queue_name}"}
 
       _ ->
         result

@@ -75,5 +75,15 @@ defmodule ArnTest do
       assert(arn.account == "123456789012")
       assert(arn.resource == "UPDATED")
     end
+
+    test "updates resource using function" do
+      arn = Arn.parse(@arn) |> Arn.update_resource(fn r -> String.reverse(r) end)
+      assert(arn.scheme == "arn")
+      assert(arn.partition == "aws")
+      assert(arn.service == "s3")
+      assert(arn.region == "us-east-1")
+      assert(arn.account == "123456789012")
+      assert(arn.resource == "lkjih/gfedcba")
+    end
   end
 end

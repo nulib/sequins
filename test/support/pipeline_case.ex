@@ -36,15 +36,12 @@ defmodule SQNS.PipelineCase do
 
     on_exit(fn ->
       send(receiver_listener.pid, :shutdown)
+      flush(self())
 
-      context
-      |> Map.get(:pipeline, [])
-      |> Enum.each(fn
-        {queue, _} -> teardown(queue)
-        queue -> teardown(queue)
-      end)
+      SQNS.Topics.delete_topics(SQNS.prefix())
+      SQNS.Queues.delete_queues(SQNS.prefix())
 
-      teardown(@passthru)
+      SQNS.Queues.delete_queue(@passthru)
     end)
 
     {
@@ -62,11 +59,6 @@ defmodule SQNS.PipelineCase do
     after
       250 -> listen(pid)
     end
-  end
-
-  defp teardown(queue) do
-    ExAws.SNS.delete_topic(SQNS.Topics.get_topic_arn(queue)) |> ExAws.request()
-    ExAws.SQS.delete_queue(SQNS.Queues.get_queue_url(queue)) |> ExAws.request()
   end
 
   defp pass_messages(pid) do

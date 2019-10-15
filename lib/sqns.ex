@@ -19,20 +19,21 @@ defmodule SQNS do
   def setup(specs) do
     (queues = parse_queues(specs)) |> Queues.create_queues()
     (topics = parse_topics(specs)) |> Topics.create_topics()
+    Subscriptions.delete_subscriptions(prefix())
     (subscriptions = parse_subscriptions(specs)) |> Subscriptions.create_subscriptions()
     {queues, topics, subscriptions}
   end
 
   def inflect(value) do
     [
-      Application.get_env(:sqns, :prefix),
+      prefix(),
       value
       |> to_string()
       |> Inflex.underscore()
       |> String.replace("_", "-")
     ]
     |> Enum.reject(&is_nil/1)
-    |> Enum.join("-")
+    |> Enum.join("")
   end
 
   def parse_queues(specs) do
@@ -76,10 +77,10 @@ defmodule SQNS do
   @doc false
   @impl Application
   def start(_type, _args) do
-    import Supervisor.Spec, warn: false
+    :ok
+  end
 
-    children = []
-    opts = [strategy: :one_for_one, name: SQNS.Supervisor]
-    Supervisor.start_link(children, opts)
+  def prefix do
+    Application.get_env(:sqns, :prefix, "sqns") <> "-"
   end
 end

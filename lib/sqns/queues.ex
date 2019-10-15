@@ -5,17 +5,14 @@ defmodule SQNS.Queues do
   alias SQNS.Utils.Arn
   require Logger
 
-  def list_queues(queues \\ [], start_token \\ nil) do
-    with %{body: result} <- SQS.list_queues(start_token: start_token) |> ExAws.request!() do
-      case Map.get(result, :next_token, "") do
-        "" -> queues ++ result.queues
-        token -> list_queues(queues ++ result.queues, token)
-      end
+  def list_queues(prefix \\ "") do
+    with %{body: result} <- SQS.list_queues(queue_name_prefix: prefix) |> ExAws.request!() do
+      result.queues
     end
   end
 
-  def list_queue_names do
-    list_queues()
+  def list_queue_names(prefix \\ "") do
+    list_queues(prefix)
     |> Enum.map(fn queue_url ->
       queue_url |> URI.parse() |> Map.get(:path) |> Path.basename()
     end)
@@ -98,5 +95,17 @@ defmodule SQNS.Queues do
     |> ExAws.request!()
 
     queue_url
+  end
+
+  def delete_queue(queue_name) do
+    queue_name
+    |> get_queue_url()
+    |> ExAws.SQS.delete_queue()
+    |> ExAws.request!()
+  end
+
+  def delete_queues(prefix) do
+    list_queue_names(prefix)
+    |> Enum.each(&delete_queue/1)
   end
 end
