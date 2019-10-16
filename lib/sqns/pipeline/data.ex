@@ -5,6 +5,7 @@ defmodule SQNS.Pipeline.Data do
   """
   @type t() :: {term(), map()}
 
+  @doc "Extract processable data and attributes from an SQS Broadway.Message"
   def extract(data) do
     case decode(data) do
       %{message: msg, message_attributes: attrs} ->
@@ -15,6 +16,7 @@ defmodule SQNS.Pipeline.Data do
     end
   end
 
+  @doc "Assemble the return value to hand off to the SNS batcher"
   def update({status, data, attrs}, caller) do
     context_attrs = %{
       status: status,
@@ -28,6 +30,7 @@ defmodule SQNS.Pipeline.Data do
     }
   end
 
+  @doc "Convert SQS message attributes to a map"
   def attrs_to_map(attrs) do
     attrs
     |> Enum.map(fn
@@ -37,6 +40,7 @@ defmodule SQNS.Pipeline.Data do
     |> Enum.into(%{})
   end
 
+  @doc "Convert a map to SQS message attributes"
   def map_to_attrs(map) do
     map
     |> Enum.map(fn {name, value} -> %{name: name, data_type: :string, value: {:string, value}} end)

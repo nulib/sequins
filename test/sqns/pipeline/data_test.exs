@@ -2,6 +2,8 @@ defmodule SQNS.Pipeline.DataTest do
   use ExUnit.Case
   alias SQNS.Pipeline.Data
 
+  doctest SQNS.Pipeline.Data
+
   describe "extract/1" do
     setup context do
       {:ok, actual: Data.extract(context.data)}

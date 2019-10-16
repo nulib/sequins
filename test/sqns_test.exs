@@ -2,6 +2,11 @@ defmodule SQNSTest do
   use SQNS.TestCase
   import ExUnit.CaptureLog
 
+  doctest SQNS
+  doctest SQNS.Queues
+  doctest SQNS.Subscriptions
+  doctest SQNS.Topics
+
   describe "queues" do
     test "create missing queue" do
       assert(

@@ -20,25 +20,42 @@ defmodule SQNS.Pipeline.Action do
 
   ### Processor
 
-  `SQNS.Pipeline.Action` assumes that all message data is JSON, deserializing it before `process`
-  and serializing it again on the way out. Instead of implementing `handle_message/3`,
-  we're just going to implement our own `process/1`:
+  `SQNS.Pipeline.Action` does some pre- and post-processing of the `Broadway.Message`
+  struct. Instead of implementing `handle_message/3`, we're just going to implement
+  our own `process/2`, which recieves two parameters:
+
+    * `data`: The Message field of the incoming SQS message
+    * `attrs`: The MessageAttributes field of the incoming SQS message
+
+  `attrs` (and `data`, if it's a map) is converted from `"CamelCaseStringKeys"` to
+  `:underscore_atom_keys` before being passed to `process/2`.
+
+  `process/2`'s return value should be one of the following:
+
+    * `{status, data, attrs}` (if both `data` and `attrs` have been updated)
+    * `{status, data}` (if `data` has been updated)
+    * `{status}` or `status` (if no data/attribute updates are needed)
+
+  The `status` will be added to the `attrs` of the next message in the pipeline.
+
+  Example:
 
       defmodule MyApplication.MyPipeline do
         use Pipeline.Action
 
-        def process(data) do
-          data
-          |> Map.get_and_update!(:value, fn n -> n * n end)
+        def process(data, attrs) do
+          {:ok,
+            data
+            |> Map.get_and_update!(:value, fn n -> n * n end)}
         end
       end
 
-  By default, the queue and topic names are the same as the last segment of the using module
-  name converted to a string. This can be overridden by passing a `:queue_name` option to
-  `use`:
+  By default, the queue and topic names are imputed based on the last segment
+  of the using module name (e.g., `my-pipeline` for a module ending in `MyPipeline`).
+  This can be overridden by passing a `:queue_name` option to `use`:
 
       defmodule MyApplication.MyPipeline do
-        use Pipeline.Action, queue_name: "my-pipeline"
+        use Pipeline.Action, queue_name: "my_pipeline"
         ...
       end
 
@@ -93,6 +110,18 @@ defmodule SQNS.Pipeline.Action do
   alias Broadway.Message
   alias SQNS.Pipeline.Data
   require Logger
+
+  @type action_option ::
+          {:batch_size, pos_integer()}
+          | {:batch_timeout, non_neg_integer()}
+          | {:batcher_stages, non_neg_integer()}
+          | {:max_demand, non_neg_integer()}
+          | {:min_demand, non_neg_integer()}
+          | {:processor_stages, non_neg_integer()}
+          | {:producer_stages, non_neg_integer()}
+          | {:receive_interval, non_neg_integer()}
+          | {:queue_name, String.t()}
+  @type action_options :: list(action_option())
 
   @callback process(data :: any(), attrs :: map()) ::
               {atom(), any(), map()} | {atom(), any()} | {atom()} | atom()
@@ -163,7 +192,7 @@ defmodule SQNS.Pipeline.Action do
     end
   end
 
-  @spec start_link(module :: module(), opts :: keyword()) :: {:ok, pid()}
+  @spec start_link(module :: module(), opts :: action_options()) :: {:ok, pid()}
   def start_link(module, opts) do
     opts = validate_config(opts)
 
