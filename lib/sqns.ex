@@ -1,6 +1,7 @@
 defmodule SQNS do
   alias SQNS.{Queues, Subscriptions, Topics}
   use Application
+  require Logger
 
   @moduledoc """
   Utilities to create the queues, topics, and subscriptions required to
@@ -77,7 +78,20 @@ defmodule SQNS do
   @doc false
   @impl Application
   def start(_type, _args) do
-    :ok
+    Supervisor.start_link([], name: __MODULE__.Supervisor, strategy: :one_for_one)
+  end
+
+  def start_children(children) do
+    Enum.each(children, fn action ->
+      child_name =
+        case action do
+          {mod, _} -> to_string(mod)
+          mod -> to_string(mod)
+        end
+
+      Logger.info("SQNS: Starting #{child_name}")
+      Supervisor.start_child(__MODULE__.Supervisor, action)
+    end)
   end
 
   def prefix do

@@ -163,8 +163,6 @@ defmodule SQNS.Pipeline.Action do
 
       @doc false
       def start_link(opts) do
-        Logger.info("Starting #{__MODULE__}")
-
         Pipeline.Action.start_link(
           __MODULE__,
           opts |> Keyword.put_new(:queue_name, unquote(queue))
