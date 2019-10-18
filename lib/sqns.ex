@@ -82,16 +82,32 @@ defmodule SQNS do
   end
 
   def start_children(children) do
-    Enum.each(children, fn action ->
-      child_name =
-        case action do
-          {mod, _} -> to_string(mod)
-          mod -> to_string(mod)
-        end
+    Enum.map(children, &start_child/1)
+  end
 
-      Logger.info("SQNS: Starting #{child_name}")
-      Supervisor.start_child(__MODULE__.Supervisor, action)
-    end)
+  defp start_child(action) do
+    child_name =
+      case action do
+        {mod, _} -> to_string(mod)
+        mod -> to_string(mod)
+      end
+
+    Logger.info("SQNS: Starting #{child_name}")
+
+    case Supervisor.start_child(__MODULE__.Supervisor, action) do
+      {:ok, pid} ->
+        {:ok, action, pid}
+
+      {:error, reason} ->
+        message =
+          case reason do
+            {{:EXIT, {err, _}}, _} -> inspect(err)
+            err -> inspect(err)
+          end
+
+        Logger.warn("SQNS: #{child_name} failed to start: #{message}")
+        {:error, action, reason}
+    end
   end
 
   def prefix do

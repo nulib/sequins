@@ -291,6 +291,8 @@ defmodule SQNS.Pipeline.Action do
   end
 
   defp validate_config(opts) do
+    zero_visibility = fn {k, v} -> k == :visibility_timeout && v == 0 end
+
     case opts |> Broadway.Options.validate(configuration_spec()) do
       {:error, err} ->
         raise %ArgumentError{message: err}
@@ -303,7 +305,7 @@ defmodule SQNS.Pipeline.Action do
           _ ->
             validated
             |> Keyword.put(:queue_url, SQNS.Queues.get_queue_url(validated[:queue_name]))
-            |> Enum.reject(fn {k, v} -> k == :visibility_timeout && v == 0 end)
+            |> Enum.reject(zero_visibility)
         end
     end
   end
