@@ -199,33 +199,55 @@ defmodule SQNS.Pipeline.Action do
       name: module,
       producers: [
         default: [
-          module:
-            {BroadwaySQS.Producer,
-             queue_url: SQNS.Queues.get_queue_url(opts.queue_name),
-             receive_interval: opts.receive_interval},
-          stages: opts.producer_stages
+          module: {BroadwaySQS.Producer, producer_opts(opts)},
+          stages: opts[:producer_stages]
         ]
       ],
-      processors: [
-        default: [
-          stages: opts.processor_stages,
-          min_demand: opts.min_demand,
-          max_demand: opts.max_demand
-        ]
-      ],
-      batchers: [
-        sns: [
-          stages: opts.batcher_stages,
-          batch_size: opts.batch_size,
-          batch_timeout: opts.batch_timeout
-        ]
-      ],
+      processors: processor_opts(opts),
+      batchers: batcher_opts(opts),
       context: %{
         module: module,
-        queue_name: opts.queue_name
+        queue_name: opts[:queue_name]
       }
     )
   end
+
+  defp producer_opts(opts) do
+    opts
+    |> Keyword.take([
+      :queue_url,
+      :max_number_of_messages,
+      :receive_interval,
+      :visibility_timeout
+    ])
+    |> reject_nil_values()
+  end
+
+  defp processor_opts(opts) do
+    [
+      default:
+        [
+          stages: opts[:processor_stages],
+          min_demand: opts[:min_demand],
+          max_demand: opts[:max_demand]
+        ]
+        |> reject_nil_values()
+    ]
+  end
+
+  defp batcher_opts(opts) do
+    [
+      sns:
+        [
+          stages: opts[:batcher_stages],
+          batch_size: opts[:batch_size],
+          batch_timeout: opts[:batch_timeout]
+        ]
+        |> reject_nil_values()
+    ]
+  end
+
+  defp reject_nil_values(opts), do: Enum.reject(opts, fn {_, v} -> is_nil(v) end)
 
   @impl true
   def handle_message(_, message, %{module: module}) do
@@ -269,22 +291,20 @@ defmodule SQNS.Pipeline.Action do
   end
 
   defp validate_config(opts) do
-    result =
-      case opts |> Broadway.Options.validate(configuration_spec()) do
-        {:error, err} ->
-          raise %ArgumentError{message: err}
+    case opts |> Broadway.Options.validate(configuration_spec()) do
+      {:error, err} ->
+        raise %ArgumentError{message: err}
 
-        {:ok, validated} ->
-          validated
-          |> Enum.into(%{})
-      end
+      {:ok, validated} ->
+        case validated[:queue_name] do
+          x when not is_binary(x) ->
+            raise %ArgumentError{message: "expected :queue_name to be a binary, got: #{x}"}
 
-    case result do
-      %{queue_name: queue_name} when not is_binary(queue_name) ->
-        raise %ArgumentError{message: "expected :queue_name to be a binary, got: #{queue_name}"}
-
-      _ ->
-        result
+          _ ->
+            validated
+            |> Keyword.put(:queue_url, SQNS.Queues.get_queue_url(validated[:queue_name]))
+            |> Enum.reject(fn {k, v} -> k == :visibility_timeout && v == 0 end)
+        end
     end
   end
 
@@ -294,10 +314,12 @@ defmodule SQNS.Pipeline.Action do
       batch_timeout: [type: :pos_integer, default: 1000],
       batcher_stages: [type: :non_neg_integer, default: 1],
       max_demand: [type: :non_neg_integer, default: 10],
+      max_number_of_messages: [type: :non_neg_integer, default: 10],
       min_demand: [type: :non_neg_integer, default: 5],
       processor_stages: [type: :non_neg_integer, default: System.schedulers_online() * 2],
       producer_stages: [type: :non_neg_integer, default: 1],
       receive_interval: [type: :non_neg_integer, default: 5000],
+      visibility_timeout: [type: :non_neg_integer, default: 0],
       queue_name: [required: true, type: :any]
     ]
   end
