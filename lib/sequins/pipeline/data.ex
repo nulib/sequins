@@ -1,6 +1,6 @@
-defmodule SQNS.Pipeline.Data do
+defmodule Sequins.Pipeline.Data do
   @moduledoc """
-  Functions for converting Broadway SQS messages into SQNS messages and preparing
+  Functions for converting Broadway SQS messages into Sequins messages and preparing
   the results for SNS
   """
   @type t() :: {term(), map()}

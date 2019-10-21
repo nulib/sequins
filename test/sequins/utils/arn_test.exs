@@ -1,8 +1,8 @@
 defmodule ArnTest do
   use ExUnit.Case
-  alias SQNS.Utils.Arn
+  alias Sequins.Utils.Arn
 
-  doctest SQNS.Utils.Arn
+  doctest Sequins.Utils.Arn
 
   @arn "arn:aws:s3:us-east-1:123456789012:abcdefg/hijkl"
 

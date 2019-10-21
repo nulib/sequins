@@ -1,9 +1,9 @@
-defmodule Sqns.MixProject do
+defmodule Sequins.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :sqns,
+      app: :sequins,
       version: "0.1.0",
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -23,7 +23,7 @@ defmodule Sqns.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {SQNS, []},
+      mod: {Sequins, []},
       extra_applications: [:ex_aws, :logger]
     ]
   end

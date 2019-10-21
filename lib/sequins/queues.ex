@@ -1,8 +1,8 @@
-defmodule SQNS.Queues do
+defmodule Sequins.Queues do
   @moduledoc false
 
   alias ExAws.SQS
-  alias SQNS.Utils.Arn
+  alias Sequins.Utils.Arn
   require Logger
 
   def list_queues(prefix \\ "") do

@@ -1,5 +1,5 @@
-defmodule SQNS do
-  alias SQNS.{Queues, Subscriptions, Topics}
+defmodule Sequins do
+  alias Sequins.{Queues, Subscriptions, Topics}
   use Application
   require Logger
 
@@ -92,7 +92,7 @@ defmodule SQNS do
         mod -> to_string(mod)
       end
 
-    Logger.info("SQNS: Starting #{child_name}")
+    Logger.info("Sequins: Starting #{child_name}")
 
     case Supervisor.start_child(__MODULE__.Supervisor, action) do
       {:ok, pid} ->
@@ -105,12 +105,12 @@ defmodule SQNS do
             err -> inspect(err)
           end
 
-        Logger.warn("SQNS: #{child_name} failed to start: #{message}")
+        Logger.warn("Sequins: #{child_name} failed to start: #{message}")
         {:error, action, reason}
     end
   end
 
   def prefix do
-    Application.get_env(:sqns, :prefix, "sqns") <> "-"
+    Application.get_env(:sequins, :prefix, "sequins") <> "-"
   end
 end

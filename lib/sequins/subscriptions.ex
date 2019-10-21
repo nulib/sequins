@@ -1,9 +1,9 @@
-defmodule SQNS.Subscriptions do
+defmodule Sequins.Subscriptions do
   @moduledoc false
 
   alias ExAws.SNS
-  alias SQNS.Utils.Arn
-  alias SQNS.{Queues, Topics}
+  alias Sequins.Utils.Arn
+  alias Sequins.{Queues, Topics}
   require Logger
 
   def list_subscriptions(prefix \\ "") do
