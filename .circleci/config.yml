@@ -2,7 +2,7 @@
 version: 2.1
 jobs:
   build:
-    working_directory: ~/sqns
+    working_directory: ~/sequins
     docker:
       - image: circleci/elixir:1.9
         environment:
@@ -21,8 +21,8 @@ jobs:
       - save_cache:
           key: dependency-cache-{{ checksum "mix.lock" }}
           paths:
-            - ~/sqns/deps
-            - ~/sqns/_build
+            - ~/sequins/deps
+            - ~/sequins/_build
       - run:
           name: Elixir Static Analysis
           command: mix credo

@@ -12,7 +12,7 @@ config :logger, :console,
   format: "$time $metadata[$level] $levelpad$message\n",
   metadata: [:request_id, :action]
 
-config :sqns, prefix: "sqns"
+config :sequins, prefix: "sequins"
 
 aws_env =
   System.get_env(

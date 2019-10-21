@@ -1,7 +1,7 @@
-defmodule SQNS.Pipeline.ActionTest do
-  use SQNS.PipelineCase
+defmodule Sequins.Pipeline.ActionTest do
+  use Sequins.PipelineCase
 
-  doctest SQNS.Pipeline.Action
+  doctest Sequins.Pipeline.Action
 
   @timeout 2000
 
@@ -15,7 +15,7 @@ defmodule SQNS.Pipeline.ActionTest do
          ]
     test "simple pipeline", context do
       defmodule ProcessA do
-        alias SQNS.Pipeline.Action
+        alias Sequins.Pipeline.Action
         use Action
 
         def process(data, attrs) do
@@ -24,7 +24,7 @@ defmodule SQNS.Pipeline.ActionTest do
       end
 
       defmodule ProcessB do
-        alias SQNS.Pipeline.Action
+        alias Sequins.Pipeline.Action
         use Action
 
         def process(data, _) do
@@ -33,7 +33,7 @@ defmodule SQNS.Pipeline.ActionTest do
       end
 
       defmodule ProcessC do
-        alias SQNS.Pipeline.Action
+        alias Sequins.Pipeline.Action
         use Action
 
         def process(data, _) do
@@ -42,14 +42,14 @@ defmodule SQNS.Pipeline.ActionTest do
       end
 
       defmodule ProcessD do
-        alias SQNS.Pipeline.Action
+        alias Sequins.Pipeline.Action
         use Action
 
         def process(_, _), do: {:ok}
       end
 
       defmodule ProcessE do
-        alias SQNS.Pipeline.Action
+        alias Sequins.Pipeline.Action
         use Action
 
         def process(_, _), do: :ok
@@ -85,7 +85,7 @@ defmodule SQNS.Pipeline.ActionTest do
       assert(
         {:module, _, _, _} =
           defmodule ExplicitQueue do
-            use SQNS.Pipeline.Action, queue_name: "queue-x"
+            use Sequins.Pipeline.Action, queue_name: "queue-x"
             def process(_, _), do: :ok
           end
       )
@@ -93,7 +93,7 @@ defmodule SQNS.Pipeline.ActionTest do
 
     test "invalid queue name" do
       defmodule InvalidQueueName do
-        use SQNS.Pipeline.Action, queue_name: 'charlist'
+        use Sequins.Pipeline.Action, queue_name: 'charlist'
         def process(_, _), do: :ok
       end
 
@@ -105,7 +105,7 @@ defmodule SQNS.Pipeline.ActionTest do
 
     test "invalid option" do
       defmodule InvalidOption do
-        use SQNS.Pipeline.Action
+        use Sequins.Pipeline.Action
         def process(_, _), do: :ok
       end
 

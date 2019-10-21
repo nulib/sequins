@@ -1,8 +1,8 @@
-defmodule SQNS.Pipeline.DataTest do
+defmodule Sequins.Pipeline.DataTest do
   use ExUnit.Case
-  alias SQNS.Pipeline.Data
+  alias Sequins.Pipeline.Data
 
-  doctest SQNS.Pipeline.Data
+  doctest Sequins.Pipeline.Data
 
   describe "extract/1" do
     setup context do

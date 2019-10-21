@@ -2,7 +2,7 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/sqns
+    working_directory: ~/sequins
     docker:
       - image: circleci/elixir:1.9
         environment:

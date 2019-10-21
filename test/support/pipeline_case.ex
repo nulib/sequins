@@ -1,4 +1,4 @@
-defmodule SQNS.PipelineCase do
+defmodule Sequins.PipelineCase do
   @moduledoc ~S"""
   This module defines the setup for tests involving
   pipelines and actions.
@@ -18,30 +18,30 @@ defmodule SQNS.PipelineCase do
   """
 
   use ExUnit.CaseTemplate
-  alias SQNS.Pipeline.Data
+  alias Sequins.Pipeline.Data
 
   @passthru "receiver"
 
   setup context do
     %{body: %{queue_url: queue_url}} = ExAws.SQS.create_queue(@passthru) |> ExAws.request!()
 
-    with {_queues, topics, _subscriptions} <- context |> Map.get(:pipeline, []) |> SQNS.setup() do
+    with {_queues, topics, _subscriptions} <- context |> Map.get(:pipeline, []) |> Sequins.setup() do
       topics
       |> Enum.each(fn topic ->
-        SQNS.Subscriptions.create_subscription({@passthru, topic, nil})
+        Sequins.Subscriptions.create_subscription({@passthru, topic, nil})
       end)
     end
 
-    receiver_listener = Task.async(SQNS.PipelineCase, :listen, [self()])
+    receiver_listener = Task.async(Sequins.PipelineCase, :listen, [self()])
 
     on_exit(fn ->
       send(receiver_listener.pid, :shutdown)
       flush(self())
 
-      SQNS.Topics.delete_topics(SQNS.prefix())
-      SQNS.Queues.delete_queues(SQNS.prefix())
+      Sequins.Topics.delete_topics(Sequins.prefix())
+      Sequins.Queues.delete_queues(Sequins.prefix())
 
-      SQNS.Queues.delete_queue(@passthru)
+      Sequins.Queues.delete_queue(@passthru)
     end)
 
     {
@@ -62,7 +62,7 @@ defmodule SQNS.PipelineCase do
   end
 
   defp pass_messages(pid) do
-    queue_url = SQNS.Queues.get_queue_url(@passthru)
+    queue_url = Sequins.Queues.get_queue_url(@passthru)
 
     case ExAws.SQS.receive_message(queue_url) |> ExAws.request!() do
       %{body: %{messages: []}} ->

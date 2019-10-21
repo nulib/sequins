@@ -1,8 +1,8 @@
-defmodule SQNS.Topics do
+defmodule Sequins.Topics do
   @moduledoc false
 
   alias ExAws.SNS
-  alias SQNS.Utils.Arn
+  alias Sequins.Utils.Arn
   require Logger
 
   def list_topics(prefix \\ "", topics \\ [], start_token \\ "") do

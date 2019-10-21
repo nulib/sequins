@@ -1,4 +1,4 @@
-defmodule SQNS.Utils.Arn do
+defmodule Sequins.Utils.Arn do
   @moduledoc """
   Utilities for parsing and manipulating AWS ARNs
   """

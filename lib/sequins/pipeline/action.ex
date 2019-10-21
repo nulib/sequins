@@ -1,6 +1,6 @@
-defmodule SQNS.Pipeline.Action do
+defmodule Sequins.Pipeline.Action do
   @moduledoc ~S"""
-  `SQNS.Pipeline.Action` wraps a [`Broadway SQS`](https://hexdocs.pm/broadway/amazon-sqs.html)
+  `Sequins.Pipeline.Action` wraps a [`Broadway SQS`](https://hexdocs.pm/broadway/amazon-sqs.html)
   processing pipeline to allow for the simple creation of multi-stage `SQS -> Broadway -> SNS`
   pipelines.
 
@@ -20,7 +20,7 @@ defmodule SQNS.Pipeline.Action do
 
   ### Processor
 
-  `SQNS.Pipeline.Action` does some pre- and post-processing of the `Broadway.Message`
+  `Sequins.Pipeline.Action` does some pre- and post-processing of the `Broadway.Message`
   struct. Instead of implementing `handle_message/3`, we're just going to implement
   our own `process/2`, which recieves two parameters:
 
@@ -61,18 +61,18 @@ defmodule SQNS.Pipeline.Action do
 
   ### Batcher
 
-  `SQNS.Pipeline.Action` sends processed data to an [AWS Simple Notification Service](https://aws.amazon.com/sns/)
-  topic, allowing it to be dispatched to another queue (and into another `SQNS.Pipeline.Action`),
+  `Sequins.Pipeline.Action` sends processed data to an [AWS Simple Notification Service](https://aws.amazon.com/sns/)
+  topic, allowing it to be dispatched to another queue (and into another `Sequins.Pipeline.Action`),
   an AWS Lambda, an arbitrary webhook, or even an email or SMS message.
 
   ## Configuration Options
 
-  `SQNS.Pipeline.Action` attempts to use sane defaults, inheriting most of them from `Broadway` itself.
+  `Sequins.Pipeline.Action` attempts to use sane defaults, inheriting most of them from `Broadway` itself.
   However, several can be overriden in the application configuration.
 
   ### Options
 
-  `SQNS.Pipeline.Action` is configured by passing options to `start_link`.
+  `Sequins.Pipeline.Action` is configured by passing options to `start_link`.
   Valid options are:
 
     * `:receive_interval` - Optional. The frequency with which the produer
@@ -108,7 +108,7 @@ defmodule SQNS.Pipeline.Action do
 
   use Broadway
   alias Broadway.Message
-  alias SQNS.Pipeline.Data
+  alias Sequins.Pipeline.Data
   require Logger
 
   @type action_option ::
@@ -135,7 +135,7 @@ defmodule SQNS.Pipeline.Action do
             |> to_string()
             |> String.split(".")
             |> List.last()
-            |> SQNS.inflect()
+            |> Sequins.inflect()
 
           use_opts |> Keyword.put_new(:queue_name, queue)
 
@@ -145,7 +145,7 @@ defmodule SQNS.Pipeline.Action do
 
     quote location: :keep,
           bind_quoted: [queue: use_opts[:queue_name], module: __CALLER__.module] do
-      alias SQNS.Pipeline
+      alias Sequins.Pipeline
       require Logger
 
       @behaviour Pipeline.Action
@@ -172,7 +172,7 @@ defmodule SQNS.Pipeline.Action do
       @doc "Send a message directly to the Action's queue"
       def send_message(data, context \\ %{}) do
         unquote(queue)
-        |> SQNS.Queues.get_queue_url()
+        |> Sequins.Queues.get_queue_url()
         |> ExAws.SQS.send_message(
           %{
             "Message" => data,
@@ -280,7 +280,7 @@ defmodule SQNS.Pipeline.Action do
   def handle_batch(:sns, messages, _, %{queue_name: queue_name}) do
     messages
     |> Enum.each(fn %Message{data: {_, data, attrs}} ->
-      topic_arn = queue_name |> SQNS.Topics.get_topic_arn()
+      topic_arn = queue_name |> Sequins.Topics.get_topic_arn()
 
       data
       |> ExAws.SNS.publish(topic_arn: topic_arn, message_attributes: attrs)
@@ -304,7 +304,7 @@ defmodule SQNS.Pipeline.Action do
 
           _ ->
             validated
-            |> Keyword.put(:queue_url, SQNS.Queues.get_queue_url(validated[:queue_name]))
+            |> Keyword.put(:queue_url, Sequins.Queues.get_queue_url(validated[:queue_name]))
             |> Enum.reject(zero_visibility)
         end
     end
