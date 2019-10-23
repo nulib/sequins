@@ -1,10 +1,16 @@
 defmodule Sequins.MixProject do
   use Mix.Project
 
+  @version "0.4.0"
+  @url "https://github.com/nulib/sequins"
+
   def project do
     [
       app: :sequins,
-      version: "0.1.0",
+      name: "Sequins",
+      description: "An AWS SQS <-> SNS data processing pipeline built on Broadway.",
+      package: package(),
+      version: @version,
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -59,6 +65,14 @@ defmodule Sequins.MixProject do
       {:mox, "~> 0.5", only: :test},
       {:poison, ">= 3.0.0"},
       {:sweet_xml, "~> 0.6"}
+    ]
+  end
+
+  defp package do
+    [
+      licenses: ["Apache-2.0"],
+      maintainers: ["Michael B. Klein"],
+      links: %{GitHub: @url}
     ]
   end
 end

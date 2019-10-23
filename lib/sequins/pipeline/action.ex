@@ -51,13 +51,17 @@ defmodule Sequins.Pipeline.Action do
       end
 
   By default, the queue and topic names are imputed based on the last segment
-  of the using module name (e.g., `my-pipeline` for a module ending in `MyPipeline`).
-  This can be overridden by passing a `:queue_name` option to `use`:
+  of the using module name (e.g., `sequins-my-pipeline` for a module ending in
+  `MyPipeline`). This can be overridden by passing a `:resource_name` option to
+  `use`:
 
       defmodule MyApplication.MyPipeline do
         use Pipeline.Action, queue_name: "my_pipeline"
         ...
       end
+
+  The default resource prefix is `sequins`, but can be changed by configuring the
+  `:sequins` application's `:prefix` attribute.
 
   ### Batcher
 

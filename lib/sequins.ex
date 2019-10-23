@@ -15,7 +15,43 @@ defmodule Sequins do
   @type spec :: stringish() | {stringish(), subscriptions()}
   @type specs :: list(spec)
 
-  @doc "Set up pipeline infrastructure based on a list of queue/topic/subscription specs"
+  @doc """
+  Set up pipeline infrastructure based on a list of queue/topic/subscription specs. A spec
+  looks like this:
+
+      {Action, [{OtherAction, [filters]}, ...]}
+
+  An action with no subscriptions can simply be specified as
+
+      Action
+
+  For example, let's say you have 4 actions – `A` (do some things), `B` & `C` (do some things; depend
+  on A's success), and `D` (handles all errors). The spec for this would be:
+
+      [
+        :A,
+        B: [A: [status: :ok]],
+        C: [A: [status: :ok]],
+        D: [A: [status: :error], B: [status: :error], C: [status: :error]]
+      ]
+
+  The above spec will create:
+
+  * 4 SQS queues (`sequins-a`, `sequins-c`, `sequins-c`, `sequins-d`)
+  * 4 SNS topics (`sequins-a`, `sequins-c`, `sequins-c`, `sequins-d`)
+  * 5 SNS subscriptions
+    * `sequins-a` -> `sequins-b` ({"status": "ok"})
+    * `sequins-a` -> `sequins-c` ({"status": "ok"})
+    * `sequins-a` -> `sequins-d` ({"status": "error"})
+    * `sequins-b` -> `sequins-d` ({"status": "error"})
+    * `sequins-c` -> `sequins-d` ({"status": "error"})
+
+  The default prefix for created resources is `sequins`, but can be changed by configuring
+  the `:sequins` application's `:prefix` attribute.
+
+  In addition to `:status`, subscriptions can filter on any attribute added to the `attrs` hash
+  by the `Sequins.Pipeline.Action.process/2` callback.
+  """
   @spec setup(specs :: specs()) :: {list(), list(), list()}
   def setup(specs) do
     (queues = parse_queues(specs)) |> Queues.create_queues()
