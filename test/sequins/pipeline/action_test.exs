@@ -103,6 +103,25 @@ defmodule Sequins.Pipeline.ActionTest do
       assert(err.message == "expected :queue_name to be a binary, got: charlist")
     end
 
+    test "default description" do
+      defmodule DefaultDescription do
+        use Sequins.Pipeline.Action
+        def process(_, _), do: :ok
+      end
+
+      assert DefaultDescription.actiondoc() == "DefaultDescription"
+    end
+
+    test "explicit description" do
+      defmodule ExplicitDescription do
+        use Sequins.Pipeline.Action
+        @actiondoc "This module has an explicit description"
+        def process(_, _), do: :ok
+      end
+
+      assert ExplicitDescription.actiondoc() == "This module has an explicit description"
+    end
+
     test "invalid option" do
       defmodule InvalidOption do
         use Sequins.Pipeline.Action

@@ -52,7 +52,7 @@ defmodule Sequins.Pipeline.Action do
 
   By default, the queue and topic names are imputed based on the last segment
   of the using module name (e.g., `sequins-my-pipeline` for a module ending in
-  `MyPipeline`). This can be overridden by passing a `:resource_name` option to
+  `MyPipeline`). This can be overridden by passing a `:queue_name` option to
   `use`:
 
       defmodule MyApplication.MyPipeline do
@@ -131,13 +131,14 @@ defmodule Sequins.Pipeline.Action do
               {atom(), any(), map()} | {atom(), any()} | {atom()} | atom()
 
   defmacro __using__(use_opts) do
+    mod = __CALLER__.module
+
     use_opts =
       case use_opts[:queue_name] do
         nil ->
           queue =
-            __CALLER__.module
-            |> to_string()
-            |> String.split(".")
+            mod
+            |> Module.split()
             |> List.last()
             |> Sequins.inflect()
 
@@ -147,8 +148,11 @@ defmodule Sequins.Pipeline.Action do
           use_opts
       end
 
+    Module.register_attribute(mod, :actiondoc, accumulate: false, persist: true)
+    Module.put_attribute(mod, :actiondoc, mod |> Module.split() |> List.last())
+
     quote location: :keep,
-          bind_quoted: [queue: use_opts[:queue_name], module: __CALLER__.module] do
+          bind_quoted: [queue: use_opts[:queue_name], module: mod] do
       alias Sequins.Pipeline
       require Logger
 
@@ -190,6 +194,13 @@ defmodule Sequins.Pipeline.Action do
           |> Jason.encode!()
         )
         |> ExAws.request!()
+      end
+
+      def actiondoc() do
+        case __MODULE__.__info__(:attributes) |> Keyword.get(:actiondoc, nil) do
+          x when is_list(x) -> List.first(x)
+          x -> x
+        end
       end
     end
   end
