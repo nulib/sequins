@@ -46,6 +46,25 @@ defmodule Sequins do
     * `sequins-b` -> `sequins-d` ({"status": "error"})
     * `sequins-c` -> `sequins-d` ({"status": "error"})
 
+  The spec can also be defined by setting up a `Sequins.Pipeline` and configuring it.
+
+      # my_pipeline.exs
+
+      defmodule MyPipeline do
+        use Sequins.Pipeline
+      end
+
+      # config.exs
+
+      config :sequins, MyPipeline, actions: [A, B, C, D]
+      config :sequins, B, [A: [status: :ok]]
+      config :sequins, C, [A: [status: :ok]]
+      config :sequins, D, [A: [status: :error], B: [status: :error], C: [status: :error]]
+
+      # then, to set up SQS/SNS for this pipeline:
+
+      Sequins.setup(MyPipeline.queue_config())
+
   The default prefix for created resources is `sequins`, but can be changed by configuring
   the `:sequins` application's `:prefix` attribute.
 

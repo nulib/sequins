@@ -3,11 +3,13 @@ defmodule Sequins.Pipeline do
   `Sequins.Pipeline` provides a wrapper to group actions into processing pipelines.
 
       # my_pipeline.ex
+
       defmodule MyPipeline do
         use Sequins.Pipeline
       end
 
       # config.exs
+
       config :sequins, MyPipeline,
         actions: [ActionOne, ActionTwo, ActionThree]
 
@@ -16,6 +18,7 @@ defmodule Sequins.Pipeline do
         notify_on: [ActionOne: [status: :ok]]
 
       # application.ex
+
       def start(_type, _args) do
         # Start other processes here
         MyPipeline.start()
