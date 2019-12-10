@@ -196,11 +196,15 @@ defmodule Sequins.Pipeline.Action do
         |> ExAws.request!()
       end
 
-      def actiondoc() do
+      def actiondoc do
         case __MODULE__.__info__(:attributes) |> Keyword.get(:actiondoc, nil) do
           x when is_list(x) -> List.first(x)
           x -> x
         end
+      end
+
+      def queue_name do
+        unquote(queue)
       end
     end
   end

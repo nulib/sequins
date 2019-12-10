@@ -62,15 +62,20 @@ defmodule Sequins do
   end
 
   def inflect(value) do
-    [
-      prefix(),
-      value
-      |> to_string()
-      |> Inflex.underscore()
-      |> String.replace("_", "-")
-    ]
-    |> Enum.reject(&is_nil/1)
-    |> Enum.join("")
+    if is_atom(value) &&
+         Code.ensure_loaded?(value) &&
+         function_exported?(value, :queue_name, 0),
+       do: value.queue_name(),
+       else:
+         [
+           prefix(),
+           value
+           |> to_string()
+           |> Inflex.underscore()
+           |> String.replace("_", "-")
+         ]
+         |> Enum.reject(&is_nil/1)
+         |> Enum.join("")
   end
 
   def parse_queues(specs) do
