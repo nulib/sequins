@@ -1,7 +1,7 @@
 defmodule Sequins.MixProject do
   use Mix.Project
 
-  @version "0.4.1"
+  @version "0.5.0"
   @url "https://github.com/nulib/sequins"
 
   def project do
@@ -15,7 +15,7 @@ defmodule Sequins.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      test_coverage: coverage_options(),
+      test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.circle": :test,
@@ -32,13 +32,6 @@ defmodule Sequins.MixProject do
       mod: {Sequins, []},
       extra_applications: [:ex_aws, :logger]
     ]
-  end
-
-  defp coverage_options do
-    case System.get_env("CI") do
-      "true" -> [tool: ExCoveralls]
-      _ -> []
-    end
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
