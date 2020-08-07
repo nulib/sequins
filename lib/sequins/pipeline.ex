@@ -8,6 +8,11 @@ defmodule Sequins.Pipeline do
       end
 
       # config.exs
+      config :sequins, supervisor_opts: [
+        max_restarts: 100,
+        strategy: :one_for_all
+      ]
+
       config :sequins, MyPipeline,
         actions: [ActionOne, ActionTwo, ActionThree]
 
