@@ -47,7 +47,9 @@ defmodule Sequins do
     * `sequins-c` -> `sequins-d` ({"status": "error"})
 
   The default prefix for created resources is `sequins`, but can be changed by configuring
-  the `:sequins` application's `:prefix` attribute.
+  the `:sequins` application's `:prefix` attribute. The options passed to the supervisor
+  on startup can be specified by setting the `:supervisor_opts` attribute to a keyword list
+  of valid [`Supervisor`](https://hexdocs.pm/elixir/Supervisor.html) options.
 
   In addition to `:status`, subscriptions can filter on any attribute added to the `attrs` hash
   by the `Sequins.Pipeline.Action.process/2` callback.
@@ -119,7 +121,10 @@ defmodule Sequins do
   @doc false
   @impl Application
   def start(_type, _args) do
-    Supervisor.start_link([], name: __MODULE__.Supervisor, strategy: :one_for_one)
+    with config <- Application.get_env(:sequins, :supervisor_opts, []),
+         opts <- Keyword.merge([name: __MODULE__.Supervisor, strategy: :one_for_one], config) do
+      Supervisor.start_link([], opts)
+    end
   end
 
   def start_children(children) do
