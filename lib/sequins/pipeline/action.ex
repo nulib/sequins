@@ -82,24 +82,24 @@ defmodule Sequins.Pipeline.Action do
     * `:receive_interval` - Optional. The frequency with which the produer
       polls SQS for new messages. Default value is 5000.
 
-    * `:producer_stages` - Optional. The number of producer stages to
-      be created by Broadway. Analogous to Broadway's producer `:stages`
+    * `:producer_concurrency` - Optional. The number of producer concurrency to
+      be created by Broadway. Analogous to Broadway's producer `:concurrency`
       option. Default value is 1.
 
-    * `:processor_stages` - Optional. The number of processor stages to
-      be created by Broadway. Analogous to Broadway's producer `:stages`
+    * `:processor_concurrency` - Optional. The number of processor concurrency to
+      be created by Broadway. Analogous to Broadway's producer `:concurrency`
       option. Default value is 1.
 
     * `:max_demand` - Optional. Set the maximum demand of all processors
-      stages. Analogous to Broadway's processor `:max_demand` option.
+      concurrency. Analogous to Broadway's processor `:max_demand` option.
       Default value is 10.
 
     * `:min_demand` - Optional. Set the minimum demand of all processors
-      stages. Analogous to Broadway's processor `:min_demand` option.
+      concurrency. Analogous to Broadway's processor `:min_demand` option.
       Default value is 5.
 
-    * `:batcher_stages` - Optional. The number of batcher stages to
-      be created by Broadway. Analogous to Broadway's batcher `:stages`
+    * `:batcher_concurrency` - Optional. The number of batcher concurrency to
+      be created by Broadway. Analogous to Broadway's batcher `:concurrency`
       option. Default value is 1.
 
     * `:batch_size` - Optional. The size of generated batches. Analogous to
@@ -118,11 +118,11 @@ defmodule Sequins.Pipeline.Action do
   @type action_option ::
           {:batch_size, pos_integer()}
           | {:batch_timeout, non_neg_integer()}
-          | {:batcher_stages, non_neg_integer()}
+          | {:batcher_concurrency, non_neg_integer()}
           | {:max_demand, non_neg_integer()}
           | {:min_demand, non_neg_integer()}
-          | {:processor_stages, non_neg_integer()}
-          | {:producer_stages, non_neg_integer()}
+          | {:processor_concurrency, non_neg_integer()}
+          | {:producer_concurrency, non_neg_integer()}
           | {:receive_interval, non_neg_integer()}
           | {:queue_name, String.t()}
   @type action_options :: list(action_option())
@@ -216,11 +216,9 @@ defmodule Sequins.Pipeline.Action do
     Broadway.start_link(
       __MODULE__,
       name: module,
-      producers: [
-        default: [
-          module: {BroadwaySQS.Producer, producer_opts(opts)},
-          stages: opts[:producer_stages]
-        ]
+      producer: [
+        module: {BroadwaySQS.Producer, producer_opts(opts)},
+        concurrency: opts[:producer_concurrency]
       ],
       processors: processor_opts(opts),
       batchers: batcher_opts(opts),
@@ -246,7 +244,7 @@ defmodule Sequins.Pipeline.Action do
     [
       default:
         [
-          stages: opts[:processor_stages],
+          concurrency: opts[:processor_concurrency],
           min_demand: opts[:min_demand],
           max_demand: opts[:max_demand]
         ]
@@ -258,7 +256,7 @@ defmodule Sequins.Pipeline.Action do
     [
       sns:
         [
-          stages: opts[:batcher_stages],
+          concurrency: opts[:batcher_concurrency],
           batch_size: opts[:batch_size],
           batch_timeout: opts[:batch_timeout]
         ]
@@ -333,12 +331,12 @@ defmodule Sequins.Pipeline.Action do
     [
       batch_size: [type: :pos_integer, default: 100],
       batch_timeout: [type: :pos_integer, default: 1000],
-      batcher_stages: [type: :non_neg_integer, default: 1],
+      batcher_concurrency: [type: :non_neg_integer, default: 1],
       max_demand: [type: :non_neg_integer, default: 10],
       max_number_of_messages: [type: :non_neg_integer, default: 10],
       min_demand: [type: :non_neg_integer, default: 5],
-      processor_stages: [type: :non_neg_integer, default: System.schedulers_online() * 2],
-      producer_stages: [type: :non_neg_integer, default: 1],
+      processor_concurrency: [type: :non_neg_integer, default: System.schedulers_online() * 2],
+      producer_concurrency: [type: :non_neg_integer, default: 1],
       receive_interval: [type: :non_neg_integer, default: 5000],
       visibility_timeout: [type: :non_neg_integer, default: 0],
       queue_name: [required: true, type: :any]

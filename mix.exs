@@ -1,7 +1,7 @@
 defmodule Sequins.MixProject do
   use Mix.Project
 
-  @version "0.5.1"
+  @version "0.6.0"
   @url "https://github.com/nulib/sequins"
 
   def project do
@@ -41,7 +41,7 @@ defmodule Sequins.MixProject do
   defp deps do
     [
       {:atomic_map, "~> 0.8"},
-      {:broadway_sqs, "~> 0.4.0"},
+      {:broadway_sqs, "~> 0.6.0"},
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.1.1", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.2", only: [:dev, :test, :docs]},

@@ -12,7 +12,7 @@ for implementation details.
 ```elixir
 def deps do
   [
-    {:sequins, git: "https://github.com/nulib/sequins.git"}
+    {:sequins, "~> 0.6.0"}
   ]
 end
 ```
