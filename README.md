@@ -12,7 +12,7 @@ for implementation details.
 ```elixir
 def deps do
   [
-    {:sequins, "~> 0.6.0"}
+    {:sequins, "~> 0.7.0"}
   ]
 end
 ```

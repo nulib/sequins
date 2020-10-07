@@ -1,7 +1,7 @@
 defmodule Sequins.MixProject do
   use Mix.Project
 
-  @version "0.6.0"
+  @version "0.7.0"
   @url "https://github.com/nulib/sequins"
 
   def project do
@@ -43,7 +43,7 @@ defmodule Sequins.MixProject do
       {:atomic_map, "~> 0.8"},
       {:broadway_sqs, "~> 0.6.0"},
       {:configparser_ex, "~> 4.0.0"},
-      {:credo, "~> 1.1.1", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.1", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.2", only: [:dev, :test, :docs]},
       {:ex_aws, "~> 2.1"},
       {:ex_aws_s3, "~> 2.0"},
@@ -52,9 +52,9 @@ defmodule Sequins.MixProject do
       {:excoveralls, "~> 0.10", only: :test},
       {:ex_doc, "~> 0.19", only: [:dev, :test, :docs]},
       {:hackney, "~> 1.15"},
-      {:inflex, "~> 2.0.0"},
+      {:inflex, "~> 2.0"},
       {:jason, "~> 1.0"},
-      {:mox, "~> 0.5", only: :test},
+      {:mox, "~> 1.0", only: :test},
       {:poison, ">= 3.0.0"},
       {:sweet_xml, "~> 0.6"}
     ]
