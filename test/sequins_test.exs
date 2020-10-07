@@ -9,13 +9,11 @@ defmodule SequinsTest do
 
   describe "queues" do
     test "create missing queue" do
+      queue_name = "sequins-test-queue"
       assert(
         capture_log(fn ->
-          assert(
-            Sequins.Queues.create_queue("sequins-test-queue") ==
-              "http://sqs.us-east-1.goaws.com:4100/100010001000/sequins-test-queue"
-          )
-        end) =~ "Creating Queue: sequins-test-queue"
+          assert Regex.match?(~r/#{queue_name}/, Sequins.Queues.create_queue(queue_name))
+        end) =~ "Creating Queue: #{queue_name}"
       )
     end
 
@@ -32,13 +30,12 @@ defmodule SequinsTest do
 
   describe "topics" do
     test "create missing topic" do
+      topic_name = "sequins-test-topic"
+
       assert(
         capture_log(fn ->
-          assert(
-            Sequins.Topics.create_topic("sequins-test-topic") ==
-              "arn:aws:sns:us-east-1:100010001000:sequins-test-topic"
-          )
-        end) =~ "Creating Topic: sequins-test-topic"
+          assert Regex.match?(~r/#{topic_name}/, Sequins.Topics.create_topic(topic_name))
+        end) =~ "Creating Topic: #{topic_name}"
       )
     end
 
@@ -64,7 +61,9 @@ defmodule SequinsTest do
       assert(
         capture_log(fn ->
           assert(
-            Sequins.Subscriptions.create_subscription({"sequins-test-queue", "sequins-test-topic", nil}) ==
+            Sequins.Subscriptions.create_subscription(
+              {"sequins-test-queue", "sequins-test-topic", nil}
+            ) ==
               {"arn:aws:sns:us-east-1:100010001000:sequins-test-topic",
                "arn:aws:sqs:us-east-1:100010001000:sequins-test-queue", %{}}
           )
@@ -78,7 +77,9 @@ defmodule SequinsTest do
       assert(
         capture_log(fn ->
           assert(
-            Sequins.Subscriptions.create_subscription({"sequins-test-queue", "sequins-test-topic", nil}) ==
+            Sequins.Subscriptions.create_subscription(
+              {"sequins-test-queue", "sequins-test-topic", nil}
+            ) ==
               :noop
           )
         end) =~ "Subscription sequins-test-topic → sequins-test-queue already exists"

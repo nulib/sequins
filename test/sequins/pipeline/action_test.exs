@@ -64,7 +64,7 @@ defmodule Sequins.Pipeline.ActionTest do
       ProcessA.send_message(%{started: time}, %{user_data: "xyz"})
 
       assert_receive(
-        {%{started: ^time, a: "received"}, %{status: "ok", user_data: xyz}},
+        {%{started: ^time, a: "received"}, %{status: "ok", user_data: "xyz"}},
         @timeout
       )
 
