@@ -79,12 +79,24 @@ defmodule Sequins.Pipeline.Action do
   `Sequins.Pipeline.Action` is configured by passing options to `start_link`.
   Valid options are:
 
-    * `:receive_interval` - Optional. The frequency with which the produer
-      polls SQS for new messages. Default value is 5000.
-
     * `:producer_concurrency` - Optional. The number of producer concurrency to
       be created by Broadway. Analogous to Broadway's producer `:concurrency`
       option. Default value is 1.
+
+    * `:receive_interval` - Optional. The frequency with which the produer
+      polls SQS for new messages. Default value is 5000.
+
+    * `:wait_time_seconds` - Optional. The duration (in seconds) for which the
+      producer's ReceiveMessages call waits for a message to arrive in the queue
+      before returning. Default value is 0 (short polling).
+
+    * `:max_number_of_messages` - Optional. The maximum number of messages the
+      producer requests from SQS at once. Default value is 10. Maximum value
+      is 10.
+
+    * `:visibility_timeout` - Optional. The amount of time (in seconds) SQS will
+      wait for a message to be acknowledged before putting it back in the queue.
+      Defaults to the queue's configured `VisibilityTimeout` setting.
 
     * `:processor_concurrency` - Optional. The number of processor concurrency to
       be created by Broadway. Analogous to Broadway's producer `:concurrency`
@@ -235,7 +247,8 @@ defmodule Sequins.Pipeline.Action do
       :queue_url,
       :max_number_of_messages,
       :receive_interval,
-      :visibility_timeout
+      :visibility_timeout,
+      :wait_time_seconds
     ])
     |> reject_nil_values()
   end
@@ -339,6 +352,7 @@ defmodule Sequins.Pipeline.Action do
       producer_concurrency: [type: :non_neg_integer, default: 1],
       receive_interval: [type: :non_neg_integer, default: 5000],
       visibility_timeout: [type: :non_neg_integer, default: 0],
+      wait_time_seconds: [type: :non_neg_integer, default: 0],
       queue_name: [required: true, type: :any]
     ]
   end
