@@ -10,6 +10,7 @@ defmodule SequinsTest do
   describe "queues" do
     test "create missing queue" do
       queue_name = "sequins-test-queue"
+
       assert(
         capture_log(fn ->
           assert Regex.match?(~r/#{queue_name}/, Sequins.Queues.create_queue(queue_name))
@@ -60,13 +61,14 @@ defmodule SequinsTest do
     test "create missing subscription" do
       assert(
         capture_log(fn ->
-          assert(
-            Sequins.Subscriptions.create_subscription(
-              {"sequins-test-queue", "sequins-test-topic", nil}
-            ) ==
-              {"arn:aws:sns:us-east-1:100010001000:sequins-test-topic",
-               "arn:aws:sqs:us-east-1:100010001000:sequins-test-queue", %{}}
-          )
+          assert {topic, queue, filter} =
+                   Sequins.Subscriptions.create_subscription(
+                     {"sequins-test-queue", "sequins-test-topic", nil}
+                   )
+
+          assert Regex.match?(~r/arn:aws:sns:(us-east-1)?:100010001000:sequins-test-topic/, topic)
+          assert Regex.match?(~r/arn:aws:sqs:(us-east-1)?:100010001000:sequins-test-queue/, queue)
+          assert filter == %{}
         end) =~ "Creating Subscription: sequins-test-topic → sequins-test-queue"
       )
     end
