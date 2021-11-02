@@ -1,6 +1,6 @@
 # Sequins
 
-[![CircleCI](https://circleci.com/gh/nulib/sequins.svg?style=svg)](https://circleci.com/gh/nulib/sequins)
+[![Build](https://github.com/nulib/sequins/actions/workflows/build.yml/badge.svg)](https://github.com/nulib/sequins/actions/workflows/build.yml)
 [![Coverage Status](https://coveralls.io/repos/github/nulib/sequins/badge.svg?branch=master)](https://coveralls.io/github/nulib/sequins?branch=master)
 
 An AWS SQS <-> SNS data processing pipeline built on [Broadway](https://hexdocs.pm/broadway/). See the
