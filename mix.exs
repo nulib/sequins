@@ -45,7 +45,7 @@ defmodule Sequins.MixProject do
       {:configparser_ex, "~> 4.0.0"},
       {:credo, "~> 1.1", only: [:dev, :test], runtime: false},
       {:earmark, "~> 1.2", only: [:dev, :test, :docs]},
-      {:ex_aws, "~> 2.1 and >= 2.1.6"},
+      {:ex_aws, "~> 2.1 and >= 2.1.7"},
       {:ex_aws_s3, "~> 2.0"},
       {:ex_aws_sns, "~> 2.1"},
       {:ex_aws_sqs, "~> 3.0"},
