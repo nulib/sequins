@@ -1,4 +1,4 @@
-# Sequins
+# Sequins [DEPRECATED]
 
 [![CircleCI](https://circleci.com/gh/nulib/sequins.svg?style=svg)](https://circleci.com/gh/nulib/sequins)
 [![Coverage Status](https://coveralls.io/repos/github/nulib/sequins/badge.svg?branch=master)](https://coveralls.io/github/nulib/sequins?branch=master)

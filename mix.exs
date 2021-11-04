@@ -1,7 +1,7 @@
 defmodule Sequins.MixProject do
   use Mix.Project
 
-  @version "0.7.1"
+  @version "0.7.2"
   @url "https://github.com/nulib/sequins"
 
   def project do
