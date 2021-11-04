@@ -8,6 +8,8 @@ defmodule Sequins do
   support the ingest pipeline.
   """
 
+  @moduledoc deprecated: "Sequins is no longer being actively maintained. Use [Broadway](https://github.com/dashbitco/broadway) or [Broadway SQS](https://github.com/dashbitco/broadway_sqs) directly instead", since: "0.7.2"
+
   @type stringish :: atom() | binary()
   @type filter :: {stringish(), stringish()}
   @type subscription :: stringish() | {stringish(), list(filter())}

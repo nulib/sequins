@@ -1,4 +1,4 @@
-# Sequins
+# Sequins [DEPRECATED]
 
 [![Build](https://github.com/nulib/sequins/actions/workflows/build.yml/badge.svg)](https://github.com/nulib/sequins/actions/workflows/build.yml)
 [![Coverage Status](https://coveralls.io/repos/github/nulib/sequins/badge.svg?branch=main)](https://coveralls.io/github/nulib/sequins?branch=main)
