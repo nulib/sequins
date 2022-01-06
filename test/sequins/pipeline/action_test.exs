@@ -121,18 +121,5 @@ defmodule Sequins.Pipeline.ActionTest do
 
       assert ExplicitDescription.actiondoc() == "This module has an explicit description"
     end
-
-    test "invalid option" do
-      defmodule InvalidOption do
-        use Sequins.Pipeline.Action
-        def process(_, _), do: :ok
-      end
-
-      assert {result, {{:EXIT, {err, _}}, _}} =
-               start_supervised({InvalidOption, this_option_is_invalid: true})
-
-      assert(result == :error)
-      assert(err.message =~ ~r{unknown options \[:this_option_is_invalid\]})
-    end
   end
 end

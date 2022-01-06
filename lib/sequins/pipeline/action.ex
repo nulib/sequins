@@ -215,30 +215,32 @@ defmodule Sequins.Pipeline.Action do
         end
       end
 
-      def queue_name do
-        unquote(queue)
-      end
+      @impl true
+      def process_name(_, _), do: __MODULE__
+
+      def queue_name, do: unquote(queue)
     end
   end
 
   @spec start_link(module :: module(), opts :: action_options()) :: {:ok, pid()}
   def start_link(module, opts) do
     opts = validate_config(opts)
+    producer_concurrency = [concurrency: opts[:producer_concurrency]] |> reject_nil_values()
 
-    Broadway.start_link(
-      __MODULE__,
+    start_link_options = [
       name: module,
-      producer: [
-        module: {BroadwaySQS.Producer, producer_opts(opts)},
-        concurrency: opts[:producer_concurrency]
-      ],
+      producer:
+        [module: {BroadwaySQS.Producer, producer_opts(opts)}]
+        |> Keyword.merge(producer_concurrency),
       processors: processor_opts(opts),
       batchers: batcher_opts(opts),
       context: %{
         module: module,
         queue_name: opts[:queue_name]
       }
-    )
+    ]
+
+    Broadway.start_link(__MODULE__, start_link_options)
   end
 
   defp producer_opts(opts) do
@@ -323,37 +325,14 @@ defmodule Sequins.Pipeline.Action do
   defp validate_config(opts) do
     zero_visibility = fn {k, v} -> k == :visibility_timeout && v == 0 end
 
-    case opts |> Broadway.Options.validate(configuration_spec()) do
-      {:error, err} ->
-        raise %ArgumentError{message: err}
+    case opts[:queue_name] do
+      x when not is_binary(x) ->
+        raise %ArgumentError{message: "expected :queue_name to be a binary, got: #{x}"}
 
-      {:ok, validated} ->
-        case validated[:queue_name] do
-          x when not is_binary(x) ->
-            raise %ArgumentError{message: "expected :queue_name to be a binary, got: #{x}"}
-
-          _ ->
-            validated
-            |> Keyword.put(:queue_url, Sequins.Queues.get_queue_url(validated[:queue_name]))
-            |> Enum.reject(zero_visibility)
-        end
+      name ->
+        opts
+        |> Keyword.put(:queue_url, Sequins.Queues.get_queue_url(name))
+        |> Enum.reject(zero_visibility)
     end
-  end
-
-  defp configuration_spec do
-    [
-      batch_size: [type: :pos_integer, default: 100],
-      batch_timeout: [type: :pos_integer, default: 1000],
-      batcher_concurrency: [type: :non_neg_integer, default: 1],
-      max_demand: [type: :non_neg_integer, default: 10],
-      max_number_of_messages: [type: :non_neg_integer, default: 10],
-      min_demand: [type: :non_neg_integer, default: 5],
-      processor_concurrency: [type: :non_neg_integer, default: System.schedulers_online() * 2],
-      producer_concurrency: [type: :non_neg_integer, default: 1],
-      receive_interval: [type: :non_neg_integer, default: 5000],
-      visibility_timeout: [type: :non_neg_integer, default: 0],
-      wait_time_seconds: [type: :non_neg_integer, default: 0],
-      queue_name: [required: true, type: :any]
-    ]
   end
 end
